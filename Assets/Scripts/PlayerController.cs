@@ -5,7 +5,8 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private Vector2 moveInput;
-    [SerializeField] private int moveSpeed = 100;
+    //[SerializeField] private int moveSpeed = 100;
+    private bool engineIgn = false;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -15,16 +16,24 @@ public class PlayerController : MonoBehaviour
     {
         if (context.started)
         {
-            rb.AddForce(0, 100, 0);
+            //rb.AddForce(0, 100, 0);
+            engineIgn = true;
+        }
+
+        else if (context.canceled)
+        {
+            engineIgn = false;
         }
         
     }
 
-    public void Move(InputAction.CallbackContext context)
+    public void Controls(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
             moveInput = context.ReadValue<Vector2>();
+            
+            //Debug.Log(moveInput);
         }
         else if (context.canceled)
         {
@@ -35,7 +44,16 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        rb.linearVelocity = new Vector3(moveInput.x*moveSpeed*Time.deltaTime, rb.linearVelocity.y, moveInput.y*moveSpeed*Time.deltaTime);
+        //converting from vector2 to quaternion (WILL ADD MORE DIRECTIONS HERE!!!)
+        //transform.rotation = transform.rotation*Quaternion.Euler(0, 0, -moveInput.x*Time.deltaTime*100);
+
+        rb.AddRelativeTorque(0, 0, -moveInput.x * Time.deltaTime * 100);
+
+        //temporary thrust value
+        if(engineIgn == true)
+        {
+            rb.AddRelativeForce(0,1000*Time.deltaTime,0);
+        }
     }
 
 }
